@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+  <head>
+    <!-- Required meta tags always come first -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <!-- Always force latest IE rendering engine or request Chrome Frame -->
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+
+    <link href="/stylesheets/all-94a9eddc.css" rel="stylesheet" /><link href="/stylesheets/highlight-c2e59bbe.css" rel="stylesheet" />
+    <script src="/javascripts/all-da39a3ee.js"></script>
+
+    <!-- Use title if it's in the page YAML frontmatter -->
+    <title>Customize text in form submit buttons with i18n</title>
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-75061257-3', 'auto');
+      ga('send', 'pageview');
+    </script>
+  </head>
+
+  <body class="blog blog_customize-form-submit-buttons-with-i18n blog_customize-form-submit-buttons-with-i18n_index">
+
+    <nav class="navbar navbar-light bg-faded">
+      <div class="container">
+        <a class="navbar-brand" href="/">Patrik Bóna</a>
+      </div>
+    </nav>
+    <div class="container">
+        <span>November 14, 2013</span>
+  <h1>Customize text in form submit buttons with i18n</h1>
+  <article>
+    <h3>Problem</h3>
+
+<p>In your Rails application you want to have custom text in your form submit buttons for both, <em>create</em> and also <em>update</em> actions and you still want to have just one form template with simple <code>&lt;%= f.submit %&gt;</code> call.</p>
+
+<h3>Solution</h3>
+
+<p>Use <a href="https://github.com/svenfuchs/rails-i18n">rails-i18n gem</a> and create custom button text for all submit buttons, or just for particular model.</p>
+
+<h4>Step by step solution</h4>
+
+<p>1) Add this to your <code>Gemfile</code>:</p>
+<pre class="highlight ruby"><code><span class="n">gem</span> <span class="s1">'rails-i18n'</span>
+</code></pre>
+
+<p>2) Run <code>bundle install</code>.</p>
+
+<p>3) Update your locale file with:</p>
+<pre class="highlight yaml"><code><span class="c1"># config/locales/en.yml</span>
+<span class="s">en</span><span class="pi">:</span>
+  <span class="s">helpers</span><span class="pi">:</span>
+    <span class="s">submit</span><span class="pi">:</span>
+      <span class="s">create</span><span class="pi">:</span> <span class="s1">'</span><span class="s">Awesome</span><span class="nv"> </span><span class="s">create</span><span class="nv"> </span><span class="s">button'</span>
+      <span class="s">update</span><span class="pi">:</span> <span class="s1">'</span><span class="s">Even</span><span class="nv"> </span><span class="s">better</span><span class="nv"> </span><span class="s">update</span><span class="nv"> </span><span class="s">button'</span>
+</code></pre>
+
+<p>Or if you would like to modify it just for particular model, then your locale file should contain this:</p>
+<pre class="highlight yaml"><code><span class="s">en</span><span class="pi">:</span>
+  <span class="s">helpers</span><span class="pi">:</span>
+    <span class="s">submit</span><span class="pi">:</span>
+      <span class="s">model_name</span><span class="pi">:</span>
+        <span class="s">create</span><span class="pi">:</span> <span class="s1">'</span><span class="s">Awesome</span><span class="nv"> </span><span class="s">create</span><span class="nv"> </span><span class="s">button</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">%{model}'</span>
+        <span class="s">update</span><span class="pi">:</span> <span class="s1">'</span><span class="s">Even</span><span class="nv"> </span><span class="s">better</span><span class="nv"> </span><span class="s">update</span><span class="nv"> </span><span class="s">button</span><span class="nv"> </span><span class="s">%{model}'</span>
+</code></pre>
+
+<p>4) Restart your rails server.</p>
+
+<p>5) ???</p>
+
+<p>6) Profit!</p>
+
+  </article>
+  <div class="hey-there-box">
+    <h4>Hey there!</h4>
+    My name is Patrik Bóna and I am the only programmer at <a href="https://memberful.com">Memberful</a>. This blog is kind of dead, but I just started my own <a href="http://patrikonrails.com/">Ruby on Rails screencast</a>. Follow me on <a href="https://twitter.com/patrikbona">Twitter</a> if you want to be notified about my newest videos.
+  </div>
+
+    </div>
+  </body>
+</html>

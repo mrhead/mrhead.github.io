@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+  <head>
+    <!-- Required meta tags always come first -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <!-- Always force latest IE rendering engine or request Chrome Frame -->
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+
+    <link href="/stylesheets/all-94a9eddc.css" rel="stylesheet" /><link href="/stylesheets/highlight-c2e59bbe.css" rel="stylesheet" />
+    <script src="/javascripts/all-da39a3ee.js"></script>
+
+    <!-- Use title if it's in the page YAML frontmatter -->
+    <title>Handling non UTF-8 characters with PostgreSQL</title>
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-75061257-3', 'auto');
+      ga('send', 'pageview');
+    </script>
+  </head>
+
+  <body class="blog blog_handling-non-utf8-characters-with-postgresql blog_handling-non-utf8-characters-with-postgresql_index">
+
+    <nav class="navbar navbar-light bg-faded">
+      <div class="container">
+        <a class="navbar-brand" href="/">Patrik Bóna</a>
+      </div>
+    </nav>
+    <div class="container">
+        <span>June  6, 2016</span>
+  <h1>Handling non UTF-8 characters with PostgreSQL</h1>
+  <article>
+    <p>If you have a PostgreSQL database using UTF-8 then you can&#39;t save non UTF-8 characters in it. If you try to do it with the pg gem, then it will raise a <code>PG::CharacterNotInRepertoire</code> exception.</p>
+
+<p>And exactly that happened in our CSV import system, because users are very good at finding all edge cases ;). I&#39;ve saw this error in our exception logging system and I was trying to find the best solution to handle it.</p>
+
+<p>I was hesitant to use <a href="http://ruby-doc.org/core-2.3.0/String.html#method-i-encode">String#encode</a> because I think that it would be error prone. We do not know the original encoding and it might be too complicated to do everything correctly.</p>
+
+<p>Instead of that I decided just to inform users that they have to convert their CSV file to UTF-8.</p>
+
+<p>This is simplified version of the code:</p>
+<pre class="highlight ruby"><code><span class="k">class</span> <span class="nc">CsvImportsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+  <span class="n">rescue_from</span> <span class="no">PG</span><span class="o">::</span><span class="no">CharacterNotInRepertoire</span><span class="p">,</span> <span class="ss">with: :handle_incorrect_encoding</span>
+
+  <span class="c1"># ...</span>
+
+  <span class="k">def</span> <span class="nf">create</span>
+    <span class="vi">@csv_import</span> <span class="o">=</span> <span class="no">CsvImport</span><span class="p">.</span><span class="nf">from_uploaded_io</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="ss">:csv_import</span><span class="p">][</span><span class="ss">:csv_file</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="vi">@csv_import</span><span class="p">.</span><span class="nf">save</span>
+      <span class="n">redirect_to</span> <span class="n">csv_imports_path</span><span class="p">,</span> <span class="ss">notice: </span><span class="s2">"CSV file has been successfully uploaded."</span>
+    <span class="k">else</span>
+      <span class="n">render</span> <span class="s2">"new"</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="kp">private</span>
+
+  <span class="k">def</span> <span class="nf">handle_incorrect_encoding</span>
+    <span class="n">redirect_to</span> <span class="n">new_csv_import_path</span><span class="p">,</span> <span class="ss">alert: </span><span class="s2">"Incorrect CSV file encoding. Please save it with UTF-8 encoding and try again."</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>This is might not be the best solution for users and instead of that we could try to handle all encoding on our side. But as I said it could be error prone and it would require much more time to do it right. Also, this feature is used only from time to time and the issue didn&#39;t happen very often. So I just quickly implemented the above described solution and moved to something else.</p>
+
+  </article>
+  <div class="hey-there-box">
+    <h4>Hey there!</h4>
+    My name is Patrik Bóna and I am the only programmer at <a href="https://memberful.com">Memberful</a>. This blog is kind of dead, but I just started my own <a href="http://patrikonrails.com/">Ruby on Rails screencast</a>. Follow me on <a href="https://twitter.com/patrikbona">Twitter</a> if you want to be notified about my newest videos.
+  </div>
+
+    </div>
+  </body>
+</html>

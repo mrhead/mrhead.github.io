@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+  <head>
+    <!-- Required meta tags always come first -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <!-- Always force latest IE rendering engine or request Chrome Frame -->
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+
+    <link href="/stylesheets/all-94a9eddc.css" rel="stylesheet" /><link href="/stylesheets/highlight-c2e59bbe.css" rel="stylesheet" />
+    <script src="/javascripts/all-da39a3ee.js"></script>
+
+    <!-- Use title if it's in the page YAML frontmatter -->
+    <title>JavaScript in integration tests</title>
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-75061257-3', 'auto');
+      ga('send', 'pageview');
+    </script>
+  </head>
+
+  <body class="blog blog_javascript-in-integration-tests blog_javascript-in-integration-tests_index">
+
+    <nav class="navbar navbar-light bg-faded">
+      <div class="container">
+        <a class="navbar-brand" href="/">Patrik Bóna</a>
+      </div>
+    </nav>
+    <div class="container">
+        <span>September 23, 2013</span>
+  <h1>JavaScript in integration tests</h1>
+  <article>
+    <p class="alert alert-warning">
+<strong>Update!</strong> I do not recommend to use shared DB connection anymore. Check <a href="javascript-in-integration-tests-part-2.html">this article</a> to see why.
+</p>
+
+<p>Testing of Ruby on Rails applications is easy. Especially when you use some <a href="{% post_url 2013-09-12-essential-tools-for-rails-tdd %}">additional tools</a> which make it even easier.</p>
+
+<p>But there is one tool which I did not mention in my previous post about tools for TDD. It is <a href="https://github.com/thoughtbot/capybara-webkit">capybara-webkit</a>. It allows you to test JavaScript in your integration tests without starting a browser.</p>
+
+<p>You can use JavaScript in your integration tests just with capybara itself, but then you need to have firefox installed which is started for every JS test. And it is not very fast.</p>
+
+<p>With capybara-webkit there is no browser started. It uses just webkit engine to perform your JavaScript tests.</p>
+
+<p>But there are two tricky parts:</p>
+
+<p>1) capybara-webkit native extension can be hard to install. But it depends on your platform. You can find <a href="https://github.com/thoughtbot/capybara-webkit">more information</a> on capybara-webkit readme.</p>
+
+<p>2) Within JavaScript integration tests browser (or browser engine) runs in different thread then test itself. Because of this also another database connection is used. This can be tricky, because by default database transactions are used and you cannot see new DB entries from transaction of another DB connection. There are more solution to this, but I like following one most.</p>
+<pre class="highlight ruby"><code><span class="c1"># spec/support/shared_db_connection.rb</span>
+<span class="k">class</span> <span class="nc">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+  <span class="n">mattr_accessor</span> <span class="ss">:shared_connection</span>
+  <span class="vc">@@shared_connection</span> <span class="o">=</span> <span class="kp">nil</span>
+
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">connection</span>
+    <span class="vc">@@shared_connection</span> <span class="o">||</span> <span class="n">retrieve_connection</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c1"># Forces all threads to share the same connection. This works on</span>
+<span class="c1"># Capybara because it starts the web server in a thread.</span>
+<span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="p">.</span><span class="nf">shared_connection</span> <span class="o">=</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="p">.</span><span class="nf">connection</span>
+</code></pre>
+
+<p>It is solution taken from <a href="http://blog.plataformatec.com.br/2011/12/three-tips-to-improve-the-performance-of-your-test-suite/">this article</a>.</p>
+
+<p>And it can be used with <a href="https://github.com/sporkrb/spork-rails">spork</a> too! Just update you <code>spec_helper.rb</code>.</p>
+<pre class="highlight ruby"><code><span class="c1"># spec/spec_helper.rb</span>
+<span class="no">Spork</span><span class="p">.</span><span class="nf">each_run</span> <span class="k">do</span>
+  <span class="c1"># This code will be run each time you run your specs.</span>
+  <span class="k">if</span> <span class="no">Object</span><span class="p">.</span><span class="nf">const_defined?</span><span class="p">(</span><span class="s1">'ActiveRecord'</span><span class="p">)</span>
+    <span class="k">class</span> <span class="nc">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+      <span class="n">mattr_accessor</span> <span class="ss">:shared_connection</span>
+      <span class="vc">@@shared_connection</span> <span class="o">=</span> <span class="kp">nil</span>
+
+      <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">connection</span>
+        <span class="vc">@@shared_connection</span> <span class="o">||</span> <span class="n">retrieve_connection</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+
+    <span class="c1"># Forces all threads to share the same connection. This works on</span>
+    <span class="c1"># Capybara because it starts the web server in a thread.</span>
+    <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="p">.</span><span class="nf">shared_connection</span> <span class="o">=</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="p">.</span><span class="nf">connection</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>And now you can enjoy testing JavaScript in your integration tests. But note that it makes them slower, so use it carefully.</p>
+
+<p>For more information about setup see <a href="https://github.com/thoughtbot/capybara-webkit">capybara-webkit</a> page.</p>
+
+  </article>
+  <div class="hey-there-box">
+    <h4>Hey there!</h4>
+    My name is Patrik Bóna and I am the only programmer at <a href="https://memberful.com">Memberful</a>. This blog is kind of dead, but I just started my own <a href="http://patrikonrails.com/">Ruby on Rails screencast</a>. Follow me on <a href="https://twitter.com/patrikbona">Twitter</a> if you want to be notified about my newest videos.
+  </div>
+
+    </div>
+  </body>
+</html>

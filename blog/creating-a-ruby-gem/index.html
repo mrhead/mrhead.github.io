@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+  <head>
+    <!-- Required meta tags always come first -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <!-- Always force latest IE rendering engine or request Chrome Frame -->
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+
+    <link href="/stylesheets/all-94a9eddc.css" rel="stylesheet" /><link href="/stylesheets/highlight-c2e59bbe.css" rel="stylesheet" />
+    <script src="/javascripts/all-da39a3ee.js"></script>
+
+    <!-- Use title if it's in the page YAML frontmatter -->
+    <title>Creating a Ruby gem</title>
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-75061257-3', 'auto');
+      ga('send', 'pageview');
+    </script>
+  </head>
+
+  <body class="blog blog_creating-a-ruby-gem blog_creating-a-ruby-gem_index">
+
+    <nav class="navbar navbar-light bg-faded">
+      <div class="container">
+        <a class="navbar-brand" href="/">Patrik Bóna</a>
+      </div>
+    </nav>
+    <div class="container">
+        <span>February  5, 2014</span>
+  <h1>Creating a Ruby gem</h1>
+  <article>
+    <p>There are different ways to create a new Ruby gem. I will show you how to do it with ease using <a href="http://rubygems.org/gems/bundler">bundler</a>.</p>
+
+<p>1) Generate all needed files.</p>
+<pre class="highlight plaintext"><code>$ bundle gem awesome_gem
+      create  awesome_gem/Gemfile
+      create  awesome_gem/Rakefile
+      create  awesome_gem/LICENSE.txt
+      create  awesome_gem/README.md
+      create  awesome_gem/.gitignore
+      create  awesome_gem/awesome_gem.gemspec
+      create  awesome_gem/lib/awesome_gem.rb
+      create  awesome_gem/lib/awesome_gem/version.rb
+Initializing git repo in /Users/head/tmp/awesome_gem
+</code></pre>
+
+<p>This will create all needed files and prepare new rake tasks for you.</p>
+<pre class="highlight plaintext"><code>$ rake -T
+rake build    # Build awesome_gem-0.0.1.gem into the pkg directory
+rake install  # Build and install awesome_gem-0.0.1.gem into system gems
+rake release  # Create tag v0.0.1 and build and push awesome_gem-0.0.1.gem to Rubygems
+</code></pre>
+
+<p>2) Edit gem specification in <code>awesome_gem.gemspec</code>.</p>
+
+<p>3) Add your Ruby files to <code>lib/awesome_gem</code> and make sure that they are required from <code>lib/awesome_gem.rb</code>. Also do not forget to create own namespace (module) for your code.</p>
+<pre class="highlight ruby"><code><span class="c1"># lib/awesome_gem.rb</span>
+<span class="nb">require</span> <span class="s2">"awesome_gem/awesome_class"</span>
+<span class="nb">require</span> <span class="s2">"awesome_gem/version"</span>
+
+<span class="k">module</span> <span class="nn">AwesomeGem</span>
+  <span class="c1"># Your code goes here...</span>
+<span class="k">end</span>
+</code></pre>
+<pre class="highlight ruby"><code><span class="c1"># lib/awesome_gem/awesome_class.rb</span>
+<span class="k">module</span> <span class="nn">AwesomeGem</span>
+  <span class="k">class</span> <span class="nc">AwesomeClass</span>
+    <span class="c1"># ...</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>4) Add your tests to <code>spec</code> or <code>test</code> directory. Also make sure that they pass.</p>
+
+<p>If you use <code>RSpec</code> then add this to your <code>Rakefile</code>.</p>
+<pre class="highlight ruby"><code><span class="nb">require</span> <span class="s2">"bundler/gem_tasks"</span>
+<span class="nb">require</span> <span class="s2">"rspec/core/rake_task"</span>
+
+<span class="no">RSpec</span><span class="o">::</span><span class="no">Core</span><span class="o">::</span><span class="no">RakeTask</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="ss">:spec</span><span class="p">)</span>
+
+<span class="n">task</span> <span class="ss">default: :spec</span>
+</code></pre>
+
+<p>Then you can run your test just with <code>rake</code> command.</p>
+
+<p>5) Install your gem locally and test if everything works as expected.</p>
+<pre class="highlight plaintext"><code>rake install
+</code></pre>
+
+<p>6) And publish it.</p>
+<pre class="highlight plaintext"><code>rake release
+</code></pre>
+
+<p>Above command will publish your gem to <a href="http://rubygems.org">rubygems</a> and tag current version in the git repository.</p>
+
+<h4>Further reading/watching</h4>
+
+<ul>
+<li><a href="http://railscasts.com/episodes/301-extracting-a-ruby-gem">Extracting a Ruby Gem</a> (screencast)</li>
+<li><a href="http://railscasts.com/episodes/303-publishing-a-gem">Publishing a Gem</a> (screencast)</li>
+<li><a href="http://guides.rubygems.org/make-your-own-gem/">Make your own gem</a></li>
+</ul>
+
+  </article>
+  <div class="hey-there-box">
+    <h4>Hey there!</h4>
+    My name is Patrik Bóna and I am the only programmer at <a href="https://memberful.com">Memberful</a>. This blog is kind of dead, but I just started my own <a href="http://patrikonrails.com/">Ruby on Rails screencast</a>. Follow me on <a href="https://twitter.com/patrikbona">Twitter</a> if you want to be notified about my newest videos.
+  </div>
+
+    </div>
+  </body>
+</html>

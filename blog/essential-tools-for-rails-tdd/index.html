@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+  <head>
+    <!-- Required meta tags always come first -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <!-- Always force latest IE rendering engine or request Chrome Frame -->
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+
+    <link href="/stylesheets/all-94a9eddc.css" rel="stylesheet" /><link href="/stylesheets/highlight-c2e59bbe.css" rel="stylesheet" />
+    <script src="/javascripts/all-da39a3ee.js"></script>
+
+    <!-- Use title if it's in the page YAML frontmatter -->
+    <title>Essential tools for Rails test driven development</title>
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-75061257-3', 'auto');
+      ga('send', 'pageview');
+    </script>
+  </head>
+
+  <body class="blog blog_essential-tools-for-rails-tdd blog_essential-tools-for-rails-tdd_index">
+
+    <nav class="navbar navbar-light bg-faded">
+      <div class="container">
+        <a class="navbar-brand" href="/">Patrik Bóna</a>
+      </div>
+    </nav>
+    <div class="container">
+        <span>September 12, 2013</span>
+  <h1>Essential tools for Rails test driven development</h1>
+  <article>
+    <p>I would like to write article about test driven development (TDD). How cool it is and why you should use it.</p>
+
+<p>But right now I cannot find right words. So I am going to present some essential tools which you should consider when you want to (and you should) practise Ruby on Rails TDD.</p>
+
+<h4>Must have gems</h4>
+
+<ul>
+<li><a href="https://github.com/rspec/rspec-rails">rspec-rails</a>: Rspec is test framework. rspec-rails si Rspec for Rails applications. It is replacement of default Rails test framework.</li>
+<li><a href="https://github.com/jnicklas/capybara">capybara</a>: helps you to simulate user actions in your tests. This is must have for features (integration) tests.</li>
+</ul>
+
+<h4>Very good to have gems</h4>
+
+<ul>
+<li><a href="https://github.com/thoughtbot/factory_girl_rails">factory_girl_rails</a>: factory_girl allows you to easily create new objects in your tests. In technical words it is a fixtures replacement.</li>
+<li><a href="https://github.com/sporkrb/spork">spork</a>: dramatically reduces startup time of your tests. It pre-loads whole rails environment so you can run your tests very quickly. You need to restart it from time to time (to reload rails application), but it is great time saver anyway!</li>
+<li><a href="https://github.com/copiousfreetime/launchy">launchy</a>: allows you to use capybara&#39;s <code>save_and_open_page</code> method for opening current web page from feature test.</li>
+<li><a href="https://github.com/thoughtbot/shoulda-matchers">shoulda-matchers</a>: are some very common predefined matchers for your tests.</li>
+</ul>
+
+<h4>Gemfile</h4>
+
+<p>There is a lot of other gems which can help you with Rails TDD. But I use that ones mentioned above in every project. So this is how my TDD part of <code>Gemfile</code> looks like.</p>
+<pre class="highlight ruby"><code><span class="n">group</span> <span class="ss">:test</span><span class="p">,</span> <span class="ss">:development</span> <span class="k">do</span>
+  <span class="n">gem</span> <span class="s1">'rspec-rails'</span>
+  <span class="n">gem</span> <span class="s1">'spork'</span>
+  <span class="n">gem</span> <span class="s1">'factory_girl_rails'</span>
+<span class="k">end</span>
+
+<span class="n">group</span> <span class="ss">:test</span> <span class="k">do</span>
+  <span class="n">gem</span> <span class="s1">'capybara'</span>
+  <span class="n">gem</span> <span class="s1">'launchy'</span>
+  <span class="n">gem</span> <span class="s1">'shoulda-matchers'</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>p.s. if you are vim user then check <a href="https://github.com/thoughtbot/vim-rspec">rspec.vim</a> for executing specs directly from vim</p>
+
+  </article>
+  <div class="hey-there-box">
+    <h4>Hey there!</h4>
+    My name is Patrik Bóna and I am the only programmer at <a href="https://memberful.com">Memberful</a>. This blog is kind of dead, but I just started my own <a href="http://patrikonrails.com/">Ruby on Rails screencast</a>. Follow me on <a href="https://twitter.com/patrikbona">Twitter</a> if you want to be notified about my newest videos.
+  </div>
+
+    </div>
+  </body>
+</html>

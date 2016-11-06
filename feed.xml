@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Blog Name</title>
+  <subtitle>Blog subtitle</subtitle>
+  <id>http://blog.url.com/blog</id>
+  <link href="http://blog.url.com/blog"/>
+  <link href="http://blog.url.com/feed.xml" rel="self"/>
+  <updated>2016-09-07T02:00:00+02:00</updated>
+  <author>
+    <name>Blog Author</name>
+  </author>
+  <entry>
+    <title>Rails Screencast: ActiveRecord::Base#toggle</title>
+    <link rel="alternate" href="http://blog.url.com/blog/rails-screencast-toggle/"/>
+    <id>http://blog.url.com/blog/rails-screencast-toggle/</id>
+    <published>2016-09-07T02:00:00+02:00</published>
+    <updated>2016-10-16T14:13:36+02:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;This page has been moved to &lt;a href="http://patrikonrails.com/episodes/1"&gt;Patrik on Rails&lt;/a&gt;, my new &lt;a href="http://patrikonrails.com/"&gt;screencast about programming in Ruby on Rails&lt;/a&gt;.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Handling non UTF-8 characters with PostgreSQL</title>
+    <link rel="alternate" href="http://blog.url.com/blog/handling-non-utf8-characters-with-postgresql/"/>
+    <id>http://blog.url.com/blog/handling-non-utf8-characters-with-postgresql/</id>
+    <published>2016-06-06T02:00:00+02:00</published>
+    <updated>2016-06-11T16:28:31+02:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;If you have a PostgreSQL database using UTF-8 then you can&amp;#39;t save non UTF-8 characters in it. If you try to do it with the pg gem, then it will raise a &lt;code&gt;PG::CharacterNotInRepertoire&lt;/code&gt; exception.&lt;/p&gt;
+
+&lt;p&gt;And exactly that happened in our CSV import system, because users are very good at finding all edge cases ;). I&amp;#39;ve saw this error in our exception logging system and I was trying to find the best solution to handle it.&lt;/p&gt;
+
+&lt;p&gt;I was hesitant to use &lt;a href="http://ruby-doc.org/core-2.3.0/String.html#method-i-encode"&gt;String#encode&lt;/a&gt; because I think that it would be error prone. We do not know the original encoding and it might be too complicated to do everything correctly.&lt;/p&gt;
+
+&lt;p&gt;Instead of that I decided just to inform users that they have to convert their CSV file to UTF-8.&lt;/p&gt;
+
+&lt;p&gt;This is simplified version of the code:&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;CsvImportsController&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="no"&gt;ApplicationController&lt;/span&gt;
+  &lt;span class="n"&gt;rescue_from&lt;/span&gt; &lt;span class="no"&gt;PG&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="no"&gt;CharacterNotInRepertoire&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;with: :handle_incorrect_encoding&lt;/span&gt;
+
+  &lt;span class="c1"&gt;# ...&lt;/span&gt;
+
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;create&lt;/span&gt;
+    &lt;span class="vi"&gt;@csv_import&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;CsvImport&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;from_uploaded_io&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;params&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="ss"&gt;:csv_import&lt;/span&gt;&lt;span class="p"&gt;][&lt;/span&gt;&lt;span class="ss"&gt;:csv_file&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vi"&gt;@csv_import&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;save&lt;/span&gt;
+      &lt;span class="n"&gt;redirect_to&lt;/span&gt; &lt;span class="n"&gt;csv_imports_path&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;notice: &lt;/span&gt;&lt;span class="s2"&gt;"CSV file has been successfully uploaded."&lt;/span&gt;
+    &lt;span class="k"&gt;else&lt;/span&gt;
+      &lt;span class="n"&gt;render&lt;/span&gt; &lt;span class="s2"&gt;"new"&lt;/span&gt;
+    &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+
+  &lt;span class="kp"&gt;private&lt;/span&gt;
+
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;handle_incorrect_encoding&lt;/span&gt;
+    &lt;span class="n"&gt;redirect_to&lt;/span&gt; &lt;span class="n"&gt;new_csv_import_path&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;alert: &lt;/span&gt;&lt;span class="s2"&gt;"Incorrect CSV file encoding. Please save it with UTF-8 encoding and try again."&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is might not be the best solution for users and instead of that we could try to handle all encoding on our side. But as I said it could be error prone and it would require much more time to do it right. Also, this feature is used only from time to time and the issue didn&amp;#39;t happen very often. So I just quickly implemented the above described solution and moved to something else.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Removing complexity</title>
+    <link rel="alternate" href="http://blog.url.com/blog/removing-complexity/"/>
+    <id>http://blog.url.com/blog/removing-complexity/</id>
+    <published>2016-05-17T02:00:00+02:00</published>
+    <updated>2016-05-18T11:44:06+02:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;I&amp;#39;ve started at a new job last year. It was a pretty quick change. &lt;a href="blog/i-just-quit-my-job/"&gt;I&amp;#39;ve quit my old job&lt;/a&gt; one week and started in the new one next week.&lt;/p&gt;
+
+&lt;p&gt;It is awesome, because I am the only programmer. I work at &lt;a href="https://memberful.com/"&gt;Memberful&lt;/a&gt; and I can do everything how I want to do it. And I am slowly removing all complexity. I always prefer simpler solutions to more complex ones. As I said, I am the only programmer and I can&amp;#39;t move quickly if everything is too complex. On the other hand I can move quickly if everything is simple.&lt;/p&gt;
+
+&lt;p&gt;For example, today I got rid of last pieces of &lt;a href="https://github.com/defunkt/jquery-pjax"&gt;pjax&lt;/a&gt;. I&amp;#39;ve replaced it with &lt;a href="https://github.com/turbolinks/turbolinks"&gt;Turbolinks&lt;/a&gt;. pjax is good, but Turbolinks is awesome. Turbolinks requires zero setup. It is part of Rails and it just works. pjax is also easy to setup, but it requires some effort. I&amp;#39;ve got rid of 103 lines of code thanks to this switch. We had custom spinner, custom headers for pjax and other custom code which was required by pjax. I&amp;#39;ve just removed custom stuff, replaced it with Turbolinks and everything is simpler now.&lt;/p&gt;
+
+&lt;p&gt;It was a simple change, but for me it was important. Because now there is 103 less lines of code which I need to maintain.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>I just quit my job</title>
+    <link rel="alternate" href="http://blog.url.com/blog/i-just-quit-my-job/"/>
+    <id>http://blog.url.com/blog/i-just-quit-my-job/</id>
+    <published>2015-10-16T02:00:00+02:00</published>
+    <updated>2015-10-16T15:33:50+02:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;Well, actually I did it yesterday. But today is my last day at it.&lt;/p&gt;
+
+&lt;h4&gt;What&amp;#39;s next? I don&amp;#39;t know yet!&lt;/h4&gt;
+
+&lt;p&gt;I have to say that this was my best job ever. It was my first fully remote job. I worked for &lt;a href="https://www.procore.com/"&gt;Procore&lt;/a&gt; via &lt;a href="http://www.toptal.com/#work-with-only-spectacular-computer-engineers"&gt;Toptal&lt;/a&gt;. I started more than a year ago. It was just a 5 days project. And well, it look that we were a good fit and we stayed together for more than a year.&lt;/p&gt;
+
+&lt;p&gt;And it was awesome! I learned a lot of new things which I could not learn just on my own, playing with my pet projects. &lt;a href="https://www.youtube.com/watch?v=UfjA-Vwx0pQ"&gt;I visited the USA&lt;/a&gt; for two weeks thanks to the invitation from Procore. I had a lot of freedom. I could work whenever I wanted and from wherever I wanted. And oftentimes I could choose on which project I want to work. I was really independent.&lt;/p&gt;
+
+&lt;p&gt;Also, my boss was very supportive. I told him a few weeks ago that I am thinking about quitting. He accepted it without any issues and told me than I can quit anytime I want and that I can come back later if I want!&lt;/p&gt;
+
+&lt;p&gt;So overall this job was awesome! But there were these little things. Like a lot of them ;). The company is pretty big and it is still growing. But I prefer smaller companies and teams. I did not enjoy working on our oldest app with a lot of legacy code. Especially because it was not improving. Or maybe it was, but slowly. We were not a fully remote company. It means that there were still offline meetings and not always it was communicated to me. Etc...&lt;/p&gt;
+
+&lt;p&gt;So I decided to quit.&lt;/p&gt;
+
+&lt;p&gt;What&amp;#39;s next? I don&amp;#39;t know yet. There are two possible scenarios.&lt;/p&gt;
+
+&lt;h4&gt;New Job&lt;/h4&gt;
+
+&lt;p&gt;I had an job interview this week. I do not know yet if I am going to get that job or not. I should find out today, but I just don&amp;#39;t know yet.&lt;/p&gt;
+
+&lt;p&gt;Anyway this job opportunity looks awesome. I would be the only engineer and work directly with the founder of the company. I enjoyed our job interview and I really hope that I get this job, because it looks exactly like a job which I want.&lt;/p&gt;
+
+&lt;p&gt;So this is the first option. If I get this job, then next I am going to fully focus on it and postpone all of my other side projects except this blog.&lt;/p&gt;
+
+&lt;h4&gt;Something else&lt;/h4&gt;
+
+&lt;p&gt;There is still possibility that I will not get that job. Ok. I still have like a thousand ideas what to do next. I just don&amp;#39;t want to think about it right now.&lt;/p&gt;
+
+&lt;p&gt;If I do not get the job, then I will decide about my future project next week. My problem is that I tend to do a lot of things at once. Simple because I like to do something! But not this time. I will choose something what is important to me and I will focus solely on it. Be it a next job, writing a book, blog more... As I said, I don&amp;#39;t know yet! And it is ok.&lt;/p&gt;
+
+&lt;h4&gt;Conclusion&lt;/h4&gt;
+
+&lt;p&gt;That&amp;#39;s it. I should find out today which option is it going to be. Hooray! :)&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>JavaScript localization in Ruby on Rails</title>
+    <link rel="alternate" href="http://blog.url.com/blog/javascript-localization-in-ruby-on-rails/"/>
+    <id>http://blog.url.com/blog/javascript-localization-in-ruby-on-rails/</id>
+    <published>2015-09-25T02:00:00+02:00</published>
+    <updated>2015-11-10T09:52:57+01:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;Localization (or internationalization) in Rails is &lt;a href="http://guides.rubyonrails.org/i18n.html"&gt;easy&lt;/a&gt;. But there is no built in support for JavaScript localization. Luckily it is very easy to implement it.&lt;/p&gt;
+
+&lt;p&gt;1) Add your translations to the locale file under the &lt;code&gt;javascript&lt;/code&gt; section.&lt;/p&gt;
+&lt;pre class="highlight yaml"&gt;&lt;code&gt;&lt;span class="c1"&gt;# config/locales/en.yml&lt;/span&gt;
+&lt;span class="s"&gt;en&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+  &lt;span class="s"&gt;javascript&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt;
+    &lt;span class="s"&gt;hello&lt;/span&gt;&lt;span class="pi"&gt;:&lt;/span&gt; &lt;span class="s"&gt;Hello World!&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;2) Include it into the &amp;lt;head&amp;gt; section of your layout.&lt;/p&gt;
+&lt;pre class="highlight erb"&gt;&lt;code&gt;# app/views/layouts/application.html.erb
+...
+&lt;span class="cp"&gt;&amp;lt;%=&lt;/span&gt; &lt;span class="n"&gt;javascript_tag&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; &lt;span class="cp"&gt;%&amp;gt;&lt;/span&gt;
+  window.I18n = &lt;span class="cp"&gt;&amp;lt;%=&lt;/span&gt; &lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'javascript'&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;to_json&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;html_safe&lt;/span&gt; &lt;span class="cp"&gt;%&amp;gt;&lt;/span&gt;
+&lt;span class="cp"&gt;&amp;lt;%&lt;/span&gt; &lt;span class="k"&gt;end&lt;/span&gt; &lt;span class="cp"&gt;%&amp;gt;&lt;/span&gt;
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;3) Use it in your JavaScript files.&lt;/p&gt;
+&lt;pre class="highlight javascript"&gt;&lt;code&gt;&lt;span class="c1"&gt;// app/assets/javascripts/hello_world.js&lt;/span&gt;
+&lt;span class="nx"&gt;$&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kd"&gt;function&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nx"&gt;alert&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;I18n&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;hello&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Git: Delete all merged branches</title>
+    <link rel="alternate" href="http://blog.url.com/blog/git-delete-all-merged-branches/"/>
+    <id>http://blog.url.com/blog/git-delete-all-merged-branches/</id>
+    <published>2015-09-23T02:00:00+02:00</published>
+    <updated>2015-10-15T23:46:02+02:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;p&gt;If you work on some project long enough, then you can end up with a lot of old, already merged branches. The solution is simple. Delete them:&lt;/p&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;git branch --merged | grep -v &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="se"&gt;\*&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; | grep -v &lt;span class="s2"&gt;"master"&lt;/span&gt; | xargs git branch -d
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Explanation&lt;/h3&gt;
+
+&lt;p&gt;Show all merged branches:&lt;/p&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;git branch --merged
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Remove current branch and  master branch from the output:&lt;/p&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;grep -v &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="se"&gt;\*&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; | grep -v &lt;span class="s2"&gt;"master"&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Call &lt;code&gt;git branch -d&lt;/code&gt; for each branch:&lt;/p&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;xargs git branch -d
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Keeping the habit&lt;/h3&gt;
+
+&lt;p&gt;Of course no one is going to type such a long command regularly. So it is a perfect candidate for new shell alias:&lt;/p&gt;
+&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nb"&gt;alias &lt;/span&gt;&lt;span class="nv"&gt;delete_merged_branches&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;'git branch --merged | grep -v "\*" | grep -v "master" | xargs git branch -d'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;delete_merged_branches&lt;/code&gt; is much easier to type, especially with the tab autocomplete. I delete old branches pretty often thanks to this alias.&lt;/p&gt;
+</content>
+  </entry>
+</feed>

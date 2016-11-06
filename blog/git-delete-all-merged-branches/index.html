@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+  <head>
+    <!-- Required meta tags always come first -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <!-- Always force latest IE rendering engine or request Chrome Frame -->
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+
+    <link href="/stylesheets/all-94a9eddc.css" rel="stylesheet" /><link href="/stylesheets/highlight-c2e59bbe.css" rel="stylesheet" />
+    <script src="/javascripts/all-da39a3ee.js"></script>
+
+    <!-- Use title if it's in the page YAML frontmatter -->
+    <title>Git: Delete all merged branches</title>
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-75061257-3', 'auto');
+      ga('send', 'pageview');
+    </script>
+  </head>
+
+  <body class="blog blog_git-delete-all-merged-branches blog_git-delete-all-merged-branches_index">
+
+    <nav class="navbar navbar-light bg-faded">
+      <div class="container">
+        <a class="navbar-brand" href="/">Patrik Bóna</a>
+      </div>
+    </nav>
+    <div class="container">
+        <span>September 23, 2015</span>
+  <h1>Git: Delete all merged branches</h1>
+  <article>
+    <p>If you work on some project long enough, then you can end up with a lot of old, already merged branches. The solution is simple. Delete them:</p>
+<pre class="highlight shell"><code>git branch --merged | grep -v <span class="s2">"</span><span class="se">\*</span><span class="s2">"</span> | grep -v <span class="s2">"master"</span> | xargs git branch -d
+</code></pre>
+
+<h3>Explanation</h3>
+
+<p>Show all merged branches:</p>
+<pre class="highlight shell"><code>git branch --merged
+</code></pre>
+
+<p>Remove current branch and  master branch from the output:</p>
+<pre class="highlight shell"><code>grep -v <span class="s2">"</span><span class="se">\*</span><span class="s2">"</span> | grep -v <span class="s2">"master"</span>
+</code></pre>
+
+<p>Call <code>git branch -d</code> for each branch:</p>
+<pre class="highlight shell"><code>xargs git branch -d
+</code></pre>
+
+<h3>Keeping the habit</h3>
+
+<p>Of course no one is going to type such a long command regularly. So it is a perfect candidate for new shell alias:</p>
+<pre class="highlight shell"><code><span class="nb">alias </span><span class="nv">delete_merged_branches</span><span class="o">=</span><span class="s1">'git branch --merged | grep -v "\*" | grep -v "master" | xargs git branch -d'</span>
+</code></pre>
+
+<p><code>delete_merged_branches</code> is much easier to type, especially with the tab autocomplete. I delete old branches pretty often thanks to this alias.</p>
+
+  </article>
+  <div class="hey-there-box">
+    <h4>Hey there!</h4>
+    My name is Patrik Bóna and I am the only programmer at <a href="https://memberful.com">Memberful</a>. This blog is kind of dead, but I just started my own <a href="http://patrikonrails.com/">Ruby on Rails screencast</a>. Follow me on <a href="https://twitter.com/patrikbona">Twitter</a> if you want to be notified about my newest videos.
+  </div>
+
+    </div>
+  </body>
+</html>

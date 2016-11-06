@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+  <head>
+    <!-- Required meta tags always come first -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <!-- Always force latest IE rendering engine or request Chrome Frame -->
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+
+    <link href="/stylesheets/all-94a9eddc.css" rel="stylesheet" /><link href="/stylesheets/highlight-c2e59bbe.css" rel="stylesheet" />
+    <script src="/javascripts/all-da39a3ee.js"></script>
+
+    <!-- Use title if it's in the page YAML frontmatter -->
+    <title>Quick tip: Exclude external JavaScript files from your integration tests</title>
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-75061257-3', 'auto');
+      ga('send', 'pageview');
+    </script>
+  </head>
+
+  <body class="blog blog_quick-tip-exclude-external-javascripts-from-integration-test blog_quick-tip-exclude-external-javascripts-from-integration-test_index">
+
+    <nav class="navbar navbar-light bg-faded">
+      <div class="container">
+        <a class="navbar-brand" href="/">Patrik Bóna</a>
+      </div>
+    </nav>
+    <div class="container">
+        <span>November 18, 2013</span>
+  <h1>Quick tip: Exclude external JavaScript files from your integration tests</h1>
+  <article>
+    <p>Are you using <a href="{% post_url 2013-09-23-javascript-in-integration-tests %}">JavaScript in your integration tests</a>?</p>
+
+<p>Then watch out for external JavaScript files in your HTML. Because they can really SLOW DOWN your tests.</p>
+
+<p>If you don&#39;t need them in your development and test environment, then include them just in the production environment.</p>
+<pre class="highlight ruby"><code><span class="c1"># app/views/layouts/application.html.erb</span>
+
+<span class="p">.</span><span class="nf">.</span><span class="p">.</span>
+    <span class="nf">&lt;</span><span class="o">%</span> <span class="k">if</span> <span class="no">Rails</span><span class="p">.</span><span class="nf">env</span><span class="p">.</span><span class="nf">production?</span> <span class="sx">%&gt;
+      &lt;script src="http://some-external-script.com/script.sj"&gt;</span><span class="o">&lt;</span><span class="sr">/script&gt;
+      &lt;script&gt;
+        /</span><span class="o">/</span> <span class="n">google</span> <span class="n">analytics</span> <span class="n">code</span>
+      <span class="o">&lt;</span><span class="sr">/script&gt;
+    &lt;% end %&gt;
+  &lt;/</span><span class="n">body</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="sr">/html&gt;
+</span></code></pre>
+
+<p>There is issue mainly with the scripts which are connecting to some external services. Like Google Analytics and so...</p>
+
+<p>If you need to connect to some external services, than it is much more complicated. However check <a href="http://robots.thoughtbot.com/using-capybara-to-test-javascript-that-makes-http">this article</a> for possible solution.</p>
+
+  </article>
+  <div class="hey-there-box">
+    <h4>Hey there!</h4>
+    My name is Patrik Bóna and I am the only programmer at <a href="https://memberful.com">Memberful</a>. This blog is kind of dead, but I just started my own <a href="http://patrikonrails.com/">Ruby on Rails screencast</a>. Follow me on <a href="https://twitter.com/patrikbona">Twitter</a> if you want to be notified about my newest videos.
+  </div>
+
+    </div>
+  </body>
+</html>

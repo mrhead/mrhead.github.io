@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+  <head>
+    <!-- Required meta tags always come first -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <!-- Always force latest IE rendering engine or request Chrome Frame -->
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+
+    <link href="/stylesheets/all-94a9eddc.css" rel="stylesheet" /><link href="/stylesheets/highlight-c2e59bbe.css" rel="stylesheet" />
+    <script src="/javascripts/all-da39a3ee.js"></script>
+
+    <!-- Use title if it's in the page YAML frontmatter -->
+    <title>JavaScript localization in Ruby on Rails</title>
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-75061257-3', 'auto');
+      ga('send', 'pageview');
+    </script>
+  </head>
+
+  <body class="blog blog_javascript-localization-in-ruby-on-rails blog_javascript-localization-in-ruby-on-rails_index">
+
+    <nav class="navbar navbar-light bg-faded">
+      <div class="container">
+        <a class="navbar-brand" href="/">Patrik Bóna</a>
+      </div>
+    </nav>
+    <div class="container">
+        <span>September 25, 2015</span>
+  <h1>JavaScript localization in Ruby on Rails</h1>
+  <article>
+    <p>Localization (or internationalization) in Rails is <a href="http://guides.rubyonrails.org/i18n.html">easy</a>. But there is no built in support for JavaScript localization. Luckily it is very easy to implement it.</p>
+
+<p>1) Add your translations to the locale file under the <code>javascript</code> section.</p>
+<pre class="highlight yaml"><code><span class="c1"># config/locales/en.yml</span>
+<span class="s">en</span><span class="pi">:</span>
+  <span class="s">javascript</span><span class="pi">:</span>
+    <span class="s">hello</span><span class="pi">:</span> <span class="s">Hello World!</span>
+</code></pre>
+
+<p>2) Include it into the &lt;head&gt; section of your layout.</p>
+<pre class="highlight erb"><code># app/views/layouts/application.html.erb
+...
+<span class="cp">&lt;%=</span> <span class="n">javascript_tag</span> <span class="k">do</span> <span class="cp">%&gt;</span>
+  window.I18n = <span class="cp">&lt;%=</span> <span class="n">t</span><span class="p">(</span><span class="s1">'javascript'</span><span class="p">).</span><span class="nf">to_json</span><span class="p">.</span><span class="nf">html_safe</span> <span class="cp">%&gt;</span>
+<span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span>
+...
+</code></pre>
+
+<p>3) Use it in your JavaScript files.</p>
+<pre class="highlight javascript"><code><span class="c1">// app/assets/javascripts/hello_world.js</span>
+<span class="nx">$</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">alert</span><span class="p">(</span><span class="nx">I18n</span><span class="p">.</span><span class="nx">hello</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre>
+
+  </article>
+  <div class="hey-there-box">
+    <h4>Hey there!</h4>
+    My name is Patrik Bóna and I am the only programmer at <a href="https://memberful.com">Memberful</a>. This blog is kind of dead, but I just started my own <a href="http://patrikonrails.com/">Ruby on Rails screencast</a>. Follow me on <a href="https://twitter.com/patrikbona">Twitter</a> if you want to be notified about my newest videos.
+  </div>
+
+    </div>
+  </body>
+</html>

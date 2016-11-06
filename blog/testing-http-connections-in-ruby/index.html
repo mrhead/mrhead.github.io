@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+  <head>
+    <!-- Required meta tags always come first -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <!-- Always force latest IE rendering engine or request Chrome Frame -->
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+
+    <link href="/stylesheets/all-94a9eddc.css" rel="stylesheet" /><link href="/stylesheets/highlight-c2e59bbe.css" rel="stylesheet" />
+    <script src="/javascripts/all-da39a3ee.js"></script>
+
+    <!-- Use title if it's in the page YAML frontmatter -->
+    <title>Testing HTTP connections in Ruby</title>
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-75061257-3', 'auto');
+      ga('send', 'pageview');
+    </script>
+  </head>
+
+  <body class="blog blog_testing-http-connections-in-ruby blog_testing-http-connections-in-ruby_index">
+
+    <nav class="navbar navbar-light bg-faded">
+      <div class="container">
+        <a class="navbar-brand" href="/">Patrik Bóna</a>
+      </div>
+    </nav>
+    <div class="container">
+        <span>September 18, 2013</span>
+  <h1>Testing HTTP connections in Ruby</h1>
+  <article>
+    <p>Recently I was working on the first <a href="https://github.com/mrhead/shakespeare_analyzer">thoughtbot challenge</a> for prime members. The goal was to create application which can download the XML document from web and then print some statistics.</p>
+
+<p>I&#39;ve wanted to start with the HTTP download. Of course I was following TDD so I started with tests.</p>
+
+<p>But I had no idea how to test HTTP connections. I did not want to use real XML document and real web servers in my tests. I started to thinking about implementing my really simple web server just for the tests. Oh my god. WRONG WRONG WRONG!</p>
+
+<p>There is much much simpler solution! You can stub HTTP requests in your tests. Although I did not know (and I am still not sure ;) what stubbing is, it was very simple.</p>
+
+<p>I&#39;ve found two gems for this. <a href="https://github.com/bblimke/webmock">webmock</a> and <a href="https://github.com/chrisk/fakeweb">fakeweb</a>. I&#39;ve decided to use webmock. </p>
+
+<p>As first I&#39;ve created test:</p>
+<pre class="highlight ruby"><code><span class="c1"># spec/shakespeare_analyzer_spec.rb</span>
+
+<span class="nb">require</span> <span class="s1">'spec_helper'</span>
+<span class="nb">require</span> <span class="s1">'shakespeare_analyzer'</span>
+
+<span class="n">describe</span> <span class="no">ShakespeareAnalyzer</span> <span class="k">do</span>
+  <span class="n">describe</span> <span class="s1">'#initialize'</span> <span class="k">do</span>
+    <span class="n">it</span> <span class="s1">'reads provided URI and stores its content to @file_content'</span> <span class="k">do</span>
+      <span class="n">stub_request</span><span class="p">(</span><span class="ss">:get</span><span class="p">,</span> <span class="s1">'http://www.example.com/test_file.txt'</span><span class="p">).</span><span class="nf">to_return</span><span class="p">(</span><span class="ss">body: </span><span class="s1">'This is just a test file!'</span><span class="p">)</span>
+      <span class="n">analyzer</span> <span class="o">=</span> <span class="no">ShakespeareAnalyzer</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s1">'http://www.example.com/test_file.txt'</span><span class="p">)</span>
+      <span class="n">expect</span><span class="p">(</span><span class="n">analyzer</span><span class="p">.</span><span class="nf">file_content</span><span class="p">).</span><span class="nf">to</span> <span class="n">eq</span> <span class="s1">'This is just a test file!'</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>And then made it pass:</p>
+<pre class="highlight ruby"><code><span class="c1"># lib/shakespeare_analyzer.rb</span>
+
+<span class="nb">require</span> <span class="s1">'net/http'</span>
+
+<span class="k">class</span> <span class="nc">ShakespeareAnalyzer</span>
+  <span class="kp">attr_accessor</span> <span class="ss">:file_content</span>
+
+  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+   <span class="vi">@file_content</span> <span class="o">=</span> <span class="n">get_content_from_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="kp">private</span>
+
+  <span class="k">def</span> <span class="nf">get_content_from_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+    <span class="no">Net</span><span class="o">::</span><span class="no">HTTP</span><span class="p">.</span><span class="nf">get_response</span><span class="p">(</span><span class="no">URI</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="n">uri</span><span class="p">)).</span><span class="nf">body</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>As you can see I&#39;ve stubbed GET request to <code>http://www.example.com/test_file.txt</code> to return body <code>This is just a test file!</code>.</p>
+
+<p>But it is really easy to stub requests with whole files, too.</p>
+<pre class="highlight ruby"><code><span class="n">test_file</span> <span class="o">=</span> <span class="no">File</span><span class="p">.</span><span class="nf">dirname</span><span class="p">(</span><span class="kp">__FILE__</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'/test_files/test.xml'</span>
+<span class="n">stub_request</span><span class="p">(</span><span class="ss">:get</span><span class="p">,</span> <span class="s1">'http://www.example.com/test.xml'</span><span class="p">).</span><span class="nf">to_return</span><span class="p">(</span><span class="ss">body: </span><span class="no">File</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="n">test_file</span><span class="p">))</span>
+</code></pre>
+
+<p>For more information check <a href="https://github.com/bblimke/webmock">webmock page</a> and always follow principles of TDD! ;)</p>
+
+  </article>
+  <div class="hey-there-box">
+    <h4>Hey there!</h4>
+    My name is Patrik Bóna and I am the only programmer at <a href="https://memberful.com">Memberful</a>. This blog is kind of dead, but I just started my own <a href="http://patrikonrails.com/">Ruby on Rails screencast</a>. Follow me on <a href="https://twitter.com/patrikbona">Twitter</a> if you want to be notified about my newest videos.
+  </div>
+
+    </div>
+  </body>
+</html>

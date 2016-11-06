@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+  <head>
+    <!-- Required meta tags always come first -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <!-- Always force latest IE rendering engine or request Chrome Frame -->
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+
+    <link href="/stylesheets/all-94a9eddc.css" rel="stylesheet" /><link href="/stylesheets/highlight-c2e59bbe.css" rel="stylesheet" />
+    <script src="/javascripts/all-da39a3ee.js"></script>
+
+    <!-- Use title if it's in the page YAML frontmatter -->
+    <title>Removing complexity</title>
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-75061257-3', 'auto');
+      ga('send', 'pageview');
+    </script>
+  </head>
+
+  <body class="blog blog_removing-complexity blog_removing-complexity_index">
+
+    <nav class="navbar navbar-light bg-faded">
+      <div class="container">
+        <a class="navbar-brand" href="/">Patrik Bóna</a>
+      </div>
+    </nav>
+    <div class="container">
+        <span>May 17, 2016</span>
+  <h1>Removing complexity</h1>
+  <article>
+    <p>I&#39;ve started at a new job last year. It was a pretty quick change. <a href="blog/i-just-quit-my-job/">I&#39;ve quit my old job</a> one week and started in the new one next week.</p>
+
+<p>It is awesome, because I am the only programmer. I work at <a href="https://memberful.com/">Memberful</a> and I can do everything how I want to do it. And I am slowly removing all complexity. I always prefer simpler solutions to more complex ones. As I said, I am the only programmer and I can&#39;t move quickly if everything is too complex. On the other hand I can move quickly if everything is simple.</p>
+
+<p>For example, today I got rid of last pieces of <a href="https://github.com/defunkt/jquery-pjax">pjax</a>. I&#39;ve replaced it with <a href="https://github.com/turbolinks/turbolinks">Turbolinks</a>. pjax is good, but Turbolinks is awesome. Turbolinks requires zero setup. It is part of Rails and it just works. pjax is also easy to setup, but it requires some effort. I&#39;ve got rid of 103 lines of code thanks to this switch. We had custom spinner, custom headers for pjax and other custom code which was required by pjax. I&#39;ve just removed custom stuff, replaced it with Turbolinks and everything is simpler now.</p>
+
+<p>It was a simple change, but for me it was important. Because now there is 103 less lines of code which I need to maintain.</p>
+
+  </article>
+  <div class="hey-there-box">
+    <h4>Hey there!</h4>
+    My name is Patrik Bóna and I am the only programmer at <a href="https://memberful.com">Memberful</a>. This blog is kind of dead, but I just started my own <a href="http://patrikonrails.com/">Ruby on Rails screencast</a>. Follow me on <a href="https://twitter.com/patrikbona">Twitter</a> if you want to be notified about my newest videos.
+  </div>
+
+    </div>
+  </body>
+</html>
